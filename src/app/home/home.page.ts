@@ -41,7 +41,7 @@ export class HomePage implements OnInit {
     setTimeout(async () => {
       const v = await Preferences.get({ key: 'unenrollStatus' });
       this.statusMsg = v.value;
-      console.log('this.statusMsg',v.value);
+      console.log('this.statusMsg', v.value);
     }, 5000);
   }
 
@@ -64,18 +64,25 @@ export class HomePage implements OnInit {
   }
 
   async status(value: string) {
+    console.log('unenrollStatus set to '+value);
     await Preferences.set({
       key: 'unenrollStatus',
       value,
     });
   }
+
+  async logout() {
+    await IntuneMAM.logoutOfAccount(this.user$.value);
+    console.log('logged out');
+  }
+
   async unenroll() {
     await this.status('starting....');
     await IntuneMAM.deRegisterAndUnenrollAccount(this.user$.value);
     await this.status('done');
     const user = await IntuneMAM.enrolledAccount();
+    console.log('user is ' + JSON.stringify(user));
     await this.status(JSON.stringify(user));
-    alert('Enrolled User says: ' + JSON.stringify(user));
   }
   async getToken() {
     if (this.user$.value?.upn) {
@@ -102,7 +109,7 @@ export class HomePage implements OnInit {
     }
   }
 
-  async logout() {
+  async deregister() {
     if (this.user$.value) {
       await IntuneMAM.deRegisterAndUnenrollAccount(this.user$.value);
     }
